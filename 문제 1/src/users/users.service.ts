@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import { hashPassword } from './utils/password.utils';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +19,7 @@ export class UsersService {
             throw new ConflictException('이미 존재하는 이메일입니다.');
         }
 
-        const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+        const hashedPassword = await hashPassword(createUserDto.password);
 
         const user = this.usersRepository.create({
             name: createUserDto.name,
