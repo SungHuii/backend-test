@@ -5,7 +5,9 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashPassword } from './utils/password.utils';
-import { ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
+import { plainToClass } from 'class-transformer';
+import { UserResponseDto } from './dto/user-response.dto';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -46,13 +48,9 @@ describe('UsersService', () => {
     const user = new User();
     user.id = 1;
     user.name = createUserDto.name;
-    user.email = createUserDto.email;
+    user.email = "john@example.com";
     user.password = await hashPassword(createUserDto.password);
     user.createdAt = new Date();
-
-    // mockRepository.findOne.mockResolvedValue(null);
-    // mockRepository.save.mockResolvedValue(user);
-    // mockRepository.create.mockReturnValue(user);
 
     jest.spyOn(repo, 'findOne').mockResolvedValue(null);
     jest.spyOn(repo, 'save').mockResolvedValue(user);
@@ -60,13 +58,19 @@ describe('UsersService', () => {
 
     const result = await service.create(createUserDto);
 
-    console.log(result);
+    const userResponse = plainToClass(UserResponseDto, result);
+    const { password, ...userResponseWithoutPassword } = userResponse;
 
-    expect(result).toEqual(user);
-    expect(result.password).not.toBe(createUserDto.password); // 해싱 확인
+    console.log(userResponseWithoutPassword); // 출력 값 확인
+
+    expect(userResponse.id).toBe(user.id);
+    expect(userResponse.name).toBe(user.name);
+    expect(userResponse.email).toBe(user.email);
+    expect(userResponse.createdAt.getTime()).toBe(user.createdAt.getTime());
+    expect(userResponse.password).toBeUndefined();
   });
 
-  it('should throw an error if user already exists', async () => {
+  it('should throw an error if Email already exists', async () => {
     const createUserDto: CreateUserDto = {
       name: 'John Doe',
       email: '[john@example.com](mailto:john@example.com)',
@@ -79,7 +83,24 @@ describe('UsersService', () => {
     mockRepository.findOne.mockResolvedValue(existingUser);
 
     await expect(service.create(createUserDto)).rejects.toThrow(
-      ConflictException,
+      new ConflictException('Email already exists')
     );
+
+
+  });
+
+  it('should throw an error if password is under 8 characters', async () => {
+    const createUserDto: CreateUserDto = {
+      name: 'John Doe',
+      email: '[john@example.com](mailto:john@example.com)',
+      password: 'short',
+    };
+
+    mockRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.create(createUserDto)).rejects.toThrow(
+      new BadRequestException('Password must be at least 8 characters long')
+    );
+
   });
 });
