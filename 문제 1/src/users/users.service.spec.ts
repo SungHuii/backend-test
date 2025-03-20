@@ -99,8 +99,37 @@ describe('UsersService', () => {
     mockRepository.findOne.mockResolvedValue(null);
 
     await expect(service.create(createUserDto)).rejects.toThrow(
-      new BadRequestException('Password must be at least 8 characters long')
+      new BadRequestException('Password must be at least 8 characters long and contain both letters and numbers')
     );
 
   });
+
+  it('should throw an error if password does not contain a number', async () => {
+    const createUserDto: CreateUserDto = {
+      name: 'John Doe',
+      email: '[john@example.com](mailto:john@example.com)',
+      password: 'onlyletters',
+    };
+
+    mockRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.create(createUserDto)).rejects.toThrow(
+      new BadRequestException('Password must be at least 8 characters long and contain both letters and numbers')
+    );
+  });
+  
+  it('should throw an error if password does not contain a letter', async () => {
+    const createUserDto: CreateUserDto = {
+      name: 'John Doe',
+      email: '[john@example.com](mailto:john@example.com)',
+      password: '12345678',
+    };
+
+    mockRepository.findOne.mockResolvedValue(null);
+
+    await expect(service.create(createUserDto)).rejects.toThrow(
+      new BadRequestException('Password must be at least 8 characters long and contain both letters and numbers')
+    );
+  });
+
 });

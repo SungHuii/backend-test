@@ -23,8 +23,8 @@ export class UsersService {
         }
 
         if (!/(?=.*[A-Za-z])(?=.*\d).{8,}/.test(createUserDto.password)) {
-            console.error('Password must be at least 8 characters long', createUserDto.password);
-            throw new BadRequestException('Password must be at least 8 characters long');
+            console.error('Password must be at least 8 characters long and contain both letters and numbers', createUserDto.password);
+            throw new BadRequestException('Password must be at least 8 characters long and contain both letters and numbers');
         }
 
         const hashedPassword = await hashPassword(createUserDto.password);
