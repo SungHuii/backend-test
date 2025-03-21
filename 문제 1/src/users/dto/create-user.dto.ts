@@ -11,8 +11,8 @@ export class CreateUserDto {
     email: string;
     
     @IsString()
-    @MinLength(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' })
-    @Matches(/^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/, { message: '비밀번호는 영문자와 숫자를 포함해야 합니다.' })
+    @MinLength(8, { message: 'Password must be at least 8 characters long' })
+    @Matches(/^(?=.*[a-zA-Z])(?=.*\d)/, { message: 'Password must contain both letters and numbers' })
     password: string;
 
 }
