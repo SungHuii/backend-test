@@ -30,7 +30,7 @@ OAuth에 비해 설정과 구현이 비교적 간단하기 때문에 작은 규�
   
 - JWT 토큰 생성 및 응답  
 1. 사용자의 인증 정보가 올바르면, 서버에서 Access Token과 Refresh Token 토큰을 생성  
- - Access Token (만료 시간 15~60분), Refresh Token (만료 시간 1~2주)  
+ - Access Token (만료 시간 15-60분), Refresh Token (만료 시간 1-2주)  
  - Access Token에 'userId', 'roles' 등의 정보를 포함시킴  
 2. Access Token은 HTTP 응답 Body에 포함하여 클라이언트에 전달  
 3. Refresh Token은 보안을 위해 HttpOnly Cookie에 저장  
