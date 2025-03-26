@@ -53,4 +53,33 @@ OAuth에 비해 설정과 구현이 비교적 간단하기 때문에 작은 규�
 
 ---
 
-### 💡 추가질문 - 실제로 구현해본 경험이 있다면, 해당 구현 경험을 서술해주세요
+### 💡 추가질문 - 실제로 구현해본 경험이 있다면, 해당 구현 경험을 서술해주세요  
+Java, Spring Boot 기반으로 된 프로젝트에서 Spring Security를 활용하여 보안 설정을 구성하고, JWT 기반 인증을 구현을 해본 경험이 있습니다.  
+  
+1. JWT 토큰 생성 및 검증  
+JWT를 이용하여 사용자 인증을 처리하기 위해 JwtUtil 클래스를 작성했고, JWT 토큰 생성, Access Token/Refresh Token 관리, 토큰 검증을 담당했습니다.  
+- 토큰 생성: 사용자가 로그인할 때, 사용자 정보를 기반으로 accessToken, refreshToken을 생성했습니다. 요청 시 해당 토큰을 이용해 인증을 받게 구현했습니다.  
+- 유효성 검증: 토큰의 유효성을 검사하는 validateToken 메서드를 구현했습니다. JWT 토큰의 서명이 유효한지를 체크하여 인증을 보장했습니다. 만약 토큰이 유효하지 않으면 인증 실패 처리됩니다.  
+- 토큰 파싱: parseToken 메서드를 통해 토큰 내의 claims를 추출하고, 여기서 사용자 정보와 권한을 확인하도록 했습니다.  
+  
+2. JWT 필터 설정  
+JwtAuthenticationFilter 클래스를 작성해서, 모든 API 요청에서 JWT 토큰을 검사하도록 필터링을 구현했습니다. 토큰을 Authorization 헤더에서 추출 후, JWT 유효성 검증을 시행한 뒤 SecurityContextHolder에 인증 정보를 저장하는 방식으로 처리했습니다.  
+- 인증 처리: 토큰이 유효하면 해당 토큰에서 사용자 이메일을 추출하고 이후 요청에서 현재 인증된 사용자 정보에 접근할 수 있도록 처리했습니다.  
+  
+3. Spring Security 설정  
+Spring Security의 보안 필터 체인을 설정했습니다.  
+- 보안 필터 체인: HttpSecurity 객체를 통해서 기본적인 인증과 권한 설정을 구현했습니다. 예를 들어 관리자 페이지는 ADMIN role을 가진 사용자만 접근하도록 했고, 로그인 페이지 관련 요청은 누구나 접근 가능하게 구현했습니다.  
+- JWT 필터 통합: JWT 인증 필터는 addFilterBefore 메서드를 사용해 UsernamePasswrodAuthenticationFilter 앞에 추가하여 Spring Security 보안 필터에 통합했습니다.  
+- CSRF 방지: JWT를 사용할 경우 세션을 사용하는 CSRF 토큰이 필요없으므로 csrf(AbstractHttpConfigurer::disable) 처리를 했습니다.  
+  
+4. 인증 흐름 구현  
+- 사용자가 로그인 화면에서 id, password를 입력 시, 서버는 사용자 정보를 인증한 뒤 accessToken과 refreshToken 생성하여 반환  
+- 이후 사용자가 요청을 보낼 때 Authorization 헤더에 JWT를 포함시켜 서버로 전송  
+- 서버에서 JWT 인증 필터로 해당 토큰을 검증하고, 유효한 토큰일 경우 사용자의 인증 정보를 SecurityContextHolder에 저장  
+- 이후 요청은 인증된 사용자로 처리되어 필요한 리소스를 반환하거나 처리를 수행  
+  
+5. 구현 시 신경쓴 부분  
+- 토큰 만료 처리: 토큰이 만료된 경우, 클라이언트에서 자동으로 refreshToken을 사용해 새로운 accessToken을 받아올 수 있도록 해서 사용자 경험을 개선했습니다.  
+- 성능 최적화(DB 접근 최소화): JWT 토큰의 유효성을 검사할 때, 매번 DB를 조회하지 않고 토큰 내 claims를 통해 사용자 권한이나 정보를 빠르게 파싱하여 인증을 처리해서 서버의 부하를 줄였습니다.  
+- 보안 강화: 비밀번호는 Bcrypt로 암호화하여 저장했습니다.  
+
