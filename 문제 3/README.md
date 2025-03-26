@@ -26,23 +26,27 @@ OAuth에 비해 설정과 구현이 비교적 간단하기 때문에 작은 규�
 3. 구현 방법을 서술해 주세요 (다이어그램등을 활용하셔서 첨부하셔도 좋습니다)  
 - 사용자 로그인 요청  
 1. 사용자가 로그인 폼에 아이디와 비밀번호를 입력하고 로그인 요청을 서버로 보냄
-2. 서버는 해당 사용자의 아이디와 비밀번호를 검증 (DB에서 사용자 정보 조회, 비밀번호 비교)  
+2. 서버는 DB에서 해당 사용자의 정보를 조회하고, 입력된 비밀번호를 검증
   
 - JWT 토큰 생성 및 응답  
-1. 사용자의 인증 정보가 올바르면, 서버에서 JWT 토큰을 생성  
-(JWT 생성 시 페이로드에 사용자 정보, 권한 등을 삽입)  
-2. 서버가 JWT를 클라이언트에 전달. (HTTP 응답 Body에 포함)  
+1. 사용자의 인증 정보가 올바르면, 서버에서 Access Token과 Refresh Token 토큰을 생성  
+ - Access Token (만료 시간 15~60분), Refresh Token (만료 시간 1~2주)  
+ - Access Token에 'userId', 'roles' 등의 정보를 포함시킴  
+2. Access Token은 HTTP 응답 Body에 포함하여 클라이언트에 전달  
+3. Refresh Token은 보안을 위해 HttpOnly Cookie에 저장  
+4. 사용자의 인증 정보 검증이 실패하면, 401 Unauthorized 에러 반환
   
 - 클라이언트의 요청에 JWT 토큰 포함  
-1. 클라이언트가 서버에 요청을 보낼 때 Autorization: Bearer <JWT-TOKEN> 형식으로 JWT를 포함시켜 보냄  
+1. 클라이언트가 서버에 API 요청을 보낼 때 Autorization: Bearer <JWT-TOKEN> 형식으로 JWT를 포함시켜 보냄  
   
 - 서버에서 JWT 검증  
-1. 서버가 클라이언트로부터 받은 JWT 토큰을 비밀키를 이용해 검증  
-2. 유효한 토큰이면 요청을 처리하고, 유효하지 않으면 401 Unauthorized 예외 반환  
+1. 서버가 클라이언트로부터 받은 JWT 토큰을 비밀키를 이용해 검증 후, 유효할 시 요청 처리
+2. 유효하지 않은 토큰일 땐 401 Unauthorized 예외 반환  
   
 - 토큰 만료 처리  
-1. JWT 만료 시간을 따로 설정하여 (예: 60분) 만료된 토큰은 다시 로그인 요청을 하도록 설정  
-2. 혹은 JWT의 Refresh Token을 사용하여 (만료시간 예: 1~2주) 클라이언트가 새로 로그인을 하지 않고도 다시 발급받을 수 있도록 설정  
+1. Access Token의 만료 시간이 지나면, 클라이언트는 Refresh Token을 사용해서 서버에 새로운 Access Token 요청  
+2. 서버가 Refresh Token을 검증하교 유효할 시, 새로운 Access Token을 발급해서 반환  
+3. Refresh Token도 만료되었으면 다시 로그인  
   
 인증 흐름 예시 다이어그램  
 ![ERD Diagram](./assets/diagrams/Solve3-ERD-diagram.png)
