@@ -35,12 +35,12 @@ https://dbdocs.io/gkemg2017/Backend-test-solve2?view=relationships
 ->  'user'테이블과 'post'테이블은 그대로 연결 시 다대다 관계이므로 중간 테이블로 'post_tag' 테이블을 추가  
     'post_tag' 테이블에서 'post_id', 'tag_id'를 조합하여 게시글과 태그를 연결  
 
-CREATE TABLE `post_tag` (  
-    `post_id` INT NOT NULL,  
-    `tag_id` INT NOT NULL,  
-    PRIMARY KEY (`post_id`, `tag_id`),  
-    FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE,  
-    FOREIGN KEY (`tag_id`) REFERENCES `tag`(`id`) ON DELETE CASCADE  
+CREATE TABLE post_tag (  
+        post_id INT NOT NULL,  
+        tag_id INT NOT NULL,  
+        PRIMARY KEY (post_id, tag_id),  
+        FOREIGN KEY (post_id) REFERENCES post(id) ON DELETE CASCADE,  
+        FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE  
 );  
   
 3. user는 탈퇴 처리가 가능해야 한다  
