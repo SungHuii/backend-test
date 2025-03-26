@@ -21,4 +21,12 @@
 
 ---
 
+작성한 ERD 링크입니다.
+https://dbdocs.io/gkemg2017/Backend-test-solve2?view=relationships
+
+![ERD Diagram](./assets/diagrams/Solve2-ERD-diagram.png)
+
+![ERD Diagram]('./문제 2/assets/diagrams/Solve2-ERD-diagram.png')
+
+
 ### 💡 추가질문 - 성능을 개선하기 위한 아이디어를 제시해 주세요
